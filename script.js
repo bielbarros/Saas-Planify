@@ -1,16 +1,3 @@
-let rentalChart; // Variável global para armazenar a instância do gráfico
-
-// Função para carregar arquivos CSV e Excel
-async function loadFiles() {
-    const airbnbFile = document.getElementById('airbnbFile').files[0];
-    const bookingFile = document.getElementById('bookingFile').files[0];
-
-    const airbnbData = await readCSV(airbnbFile);
-    const bookingData = await readExcel(bookingFile);
-
-    return { airbnbData, bookingData };
-}
-
 // Função para ler arquivo CSV
 async function readCSV(file) {
     return new Promise((resolve, reject) => {
@@ -19,8 +6,16 @@ async function readCSV(file) {
             const text = event.target.result;
             const lines = text.split('\n').slice(1);
             const data = lines.map(line => {
-                const [property, startDate, endDate] = line.split(',');
-                return { property, startDate: new Date(startDate), endDate: new Date(endDate) };
+                const [property, startDate, endDate, checkInTime, checkOutTime, clientName, paymentMethod] = line.split(',');
+                return {
+                    property,
+                    startDate: new Date(startDate),
+                    endDate: new Date(endDate),
+                    checkInTime,
+                    checkOutTime,
+                    clientName,
+                    paymentMethod
+                };
             });
             resolve(data);
         };
@@ -39,17 +34,16 @@ async function readExcel(file) {
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-            const result = jsonData.slice(1).map(row => {
-                return {
-                    property: row[0],
-                    startDate: XLSX.SSF.parse_date_code(row[1]),
-                    endDate: XLSX.SSF.parse_date_code(row[2])
-                };
-            }).map(item => ({
-                property: item.property,
-                startDate: new Date(item.startDate.y, item.startDate.m - 1, item.startDate.d),
-                endDate: new Date(item.endDate.y, item.endDate.m - 1, item.endDate.d)
+            const result = jsonData.slice(1).map(row => ({
+                property: row[0],
+                startDate: new Date(row[1]),
+                endDate: new Date(row[2]),
+                checkInTime: row[3],
+                checkOutTime: row[4],
+                clientName: row[5],
+                paymentMethod: row[6]
             }));
+
             resolve(result);
         };
         reader.onerror = reject;
@@ -57,7 +51,7 @@ async function readExcel(file) {
     });
 }
 
-// Função para unificar reservas
+// Função para unificar as reservas
 function unifyBookings(airbnbData, bookingData) {
     const allBookings = [
         ...airbnbData.map(b => ({ ...b, source: 'Airbnb' })),
@@ -66,14 +60,14 @@ function unifyBookings(airbnbData, bookingData) {
 
     const bookingsMap = {};
 
-    allBookings.forEach(({ property, startDate, endDate, source }) => {
+    allBookings.forEach(({ property, startDate, endDate, checkInTime, checkOutTime, clientName, paymentMethod, source }) => {
         let currentDate = new Date(startDate);
         while (currentDate <= endDate) {
             const dateString = currentDate.toISOString().split('T')[0];
             if (!bookingsMap[dateString]) {
                 bookingsMap[dateString] = [];
             }
-            bookingsMap[dateString].push({ property, source });
+            bookingsMap[dateString].push({ property, checkInTime, checkOutTime, clientName, paymentMethod, source });
             currentDate.setDate(currentDate.getDate() + 1);
         }
     });
@@ -120,7 +114,7 @@ function renderCalendar(bookingsMap) {
                 }
                 bookings.forEach(booking => {
                     const text = document.createElement('div');
-                    text.innerText = `${booking.property} (${booking.source})`;
+                    text.innerText = `${booking.property} (Check-in: ${booking.checkInTime}, Check-out: ${booking.checkOutTime}, Cliente: ${booking.clientName}, Pagamento: ${booking.paymentMethod}, Fonte: ${booking.source})`;
                     dayDiv.appendChild(text);
                 });
             }
@@ -133,111 +127,19 @@ function renderCalendar(bookingsMap) {
     });
 }
 
-// Função para mostrar a dashboard com gráficos
-function showDashboard(bookingsMap) {
-    const rentalAnalysis = document.getElementById('rental-analysis');
-    rentalAnalysis.innerHTML = ''; // Limpa o conteúdo anterior
-
-    // Preparar dados para o gráfico
-    const dates = Object.keys(bookingsMap);
-    const rentalCounts = dates.map(date => bookingsMap[date].length);
-
-    const ctx = document.getElementById('rentalChart').getContext('2d');
-
-    // Verifica se já existe um gráfico e destrói se necessário
-    if (rentalChart) {
-        rentalChart.destroy(); // Destrói o gráfico existente
-    }
-
-    rentalChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Total de Aluguéis',
-                data: rentalCounts,
-                backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                borderColor: 'rgba(0, 123, 255, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-// Função principal atualizada para incluir a dashboard
-async function main() {
-    const { airbnbData, bookingData } = await loadFiles();
-    const bookingsMap = unifyBookings(airbnbData, bookingData);
-    renderCalendar(bookingsMap);
-    showDashboard(bookingsMap); // Chama a função para mostrar a dashboard
-}
-
-// Evento para carregar dados e renderizar o calendário e a dashboard
+// Evento para carregar os arquivos e gerar o calendário
 document.getElementById('loadButton').addEventListener('click', async () => {
-    const { airbnbData, bookingData } = await loadFiles();
-    const bookingsMap = unifyBookings(airbnbData, bookingData);
-    renderCalendar(bookingsMap);
-    showDashboard(bookingsMap); // Chama a função para mostrar a dashboard
-
-    // Preencher o filtro de propriedades
-    const propertyFilter = document.getElementById('propertyFilter');
-    const uniqueProperties = [...new Set([...airbnbData.map(b => b.property), ...bookingData.map(b => b.property)])];
-    propertyFilter.innerHTML = ''; // Limpa as opções anteriores
-    uniqueProperties.forEach(property => {
-        const option = document.createElement('option');
-        option.value = property;
-        option.innerText = property;
-        propertyFilter.appendChild(option);
-    });
-});
-
-// Filtrar reservas
-document.getElementById('applyFilterButton').addEventListener('click', () => {
-    const selectedProperty = document.getElementById('propertyFilter').value;
-    const calendarDays = document.querySelectorAll('.day');
-
-    calendarDays.forEach(day => {
-        const bookingTexts = Array.from(day.children).filter(child => child.tagName === 'DIV');
-        const isVisible = selectedProperty ? bookingTexts.some(text => text.innerText.includes(selectedProperty)) : true;
-
-        day.style.display = isVisible ? 'block' : 'none'; // Mostra ou oculta dias
-    });
-});
-
-// Evento para mostrar a dashboard ao clicar no botão
-document.getElementById('showDashboardButton').addEventListener('click', () => {
-    const airbnbFile = document.getElementById('airbnbFile').files[0];
-    const bookingFile = document.getElementById('bookingFile').files[0];
-
-    if (airbnbFile && bookingFile) {
-        loadFiles().then(({ airbnbData, bookingData }) => {
-            const bookingsMap = unifyBookings(airbnbData, bookingData);
-            showDashboard(bookingsMap); // Mostra a dashboard
-        });
-    } else {
-        alert('Por favor, carregue os arquivos antes de mostrar a dashboard.');
-    }
-});
-
-// teste
-async function loadFiles() {
     const airbnbFile = document.getElementById('airbnbFile').files[0];
     const bookingFile = document.getElementById('bookingFile').files[0];
 
     if (!airbnbFile || !bookingFile) {
-        console.error("Por favor, selecione os dois arquivos.");
+        alert('Por favor, selecione os arquivos.');
         return;
     }
 
     const airbnbData = await readCSV(airbnbFile);
     const bookingData = await readExcel(bookingFile);
+    const bookingsMap = unifyBookings(airbnbData, bookingData);
+    renderCalendar(bookingsMap);
+});
 
-    return { airbnbData, bookingData };
-}
