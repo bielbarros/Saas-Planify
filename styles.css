@@ -1,0 +1,131 @@
+body {
+    font-family: 'Arial', sans-serif; 
+    background: linear-gradient(to right, #70ffb0, #007bff); 
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.file-upload {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+input[type="file"], select {
+    margin-right: 10px;
+    padding: 10px;
+    border: 2px solid #007bff; 
+    border-radius: 5px; 
+    width: calc(50% - 15px); /* Ajuste para o layout */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s; /* Transição suave */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#filters {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9; 
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.month {
+    margin-bottom: 20px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px; 
+}
+
+.day {
+    padding: 15px;
+    background: #e9e8e8;
+    border-radius: 5px;
+    text-align: center;
+    position: relative; 
+    transition: transform 0.3s, background 0.3s; /* Transição suave para o efeito de hover */
+}
+
+.day:hover {
+    background: #70ffb0;
+    transform: scale(1.1); /* Aumenta o tamanho ao passar o mouse */
+}
+
+.day div {
+    font-size: 12px; 
+}
+
+.day[data-overbooking]:before {
+    content: 'Overbooking!';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: red; 
+}
+#dashboard {
+    margin-top: 20px;
+}
+
+#rental-analysis {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+#rentalChart {
+    margin-bottom: 20px;
+}

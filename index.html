@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Reservas</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciador de Reservas</h1>
+        <div class="file-upload">
+            <input type="file" id="airbnbFile" accept=".csv" />
+            <input type="file" id="bookingFile" accept=".xlsx" />
+            <button id="loadButton">Gerar Calendário</button>
+            <button id="showDashboardButton">Mostrar Dashboard</button> <!-- Adicionado -->
+        </div>
+        <div id="filters">
+            <h2>Filtros de Exibição</h2>
+            <label for="propertyFilter">Filtrar por Propriedade:</label>
+            <select id="propertyFilter">
+                <option value="">Todas</option>
+                <!-- As propriedades serão preenchidas dinamicamente -->
+            </select>
+            <button id="applyFilterButton">Aplicar Filtros</button>
+        </div>
+        <div id="calendar"></div>
+        <div id="dashboard" class="hidden">
+            <h2>Dashboard de Aluguéis</h2>
+            <canvas id="rentalChart" width="400" height="200"></canvas>
+            <div id="rental-analysis"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
