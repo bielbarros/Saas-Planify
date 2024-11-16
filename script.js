@@ -146,7 +146,7 @@ document.getElementById('loadButton').addEventListener('click', async () => {
 // Simulação de múltiplos usuários (em uma aplicação real, isso seria feito com autenticação no backend)
 const users = [
     { username: 'admin', password: '12345' },
-    { username: 'user1', password: 'password1' },
+    { username: 'barao1', password: 'roberteviado' },
     { username: 'user2', password: 'password2' }
 ];
 
@@ -155,13 +155,15 @@ const loginScreen = document.getElementById('loginScreen');
 const mainContent = document.getElementById('mainContent');
 const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
+const passwordField = document.getElementById('password'); // Campo de senha
+const togglePassword = document.getElementById('togglePassword'); // Ícone ou botão para alternar a visibilidade da senha
 
 // Evento de envio do formulário de login
 loginForm.addEventListener('submit', function (event) {
     event.preventDefault(); // Impede o envio do formulário
 
     const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const password = passwordField.value;
 
     // Verifica se as credenciais são válidas
     const user = users.find(u => u.username === username && u.password === password);
@@ -174,4 +176,15 @@ loginForm.addEventListener('submit', function (event) {
         // Exibe mensagem de erro
         loginError.classList.remove('hidden');
     }
+});
+
+// Evento para alternar a visibilidade da senha
+togglePassword.addEventListener('click', function () {
+    // Verifica o tipo atual do campo de senha
+    const type = passwordField.type === 'password' ? 'text' : 'password';
+    passwordField.type = type; // Alterna o tipo entre 'password' e 'text'
+
+    // Alterna o ícone ou o texto
+    this.classList.toggle('fa-eye'); // Se estiver usando ícones, como FontAwesome
+    this.classList.toggle('fa-eye-slash'); // Alterna entre "olho aberto" e "olho fechado"
 });
