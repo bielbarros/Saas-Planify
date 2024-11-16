@@ -143,3 +143,30 @@ document.getElementById('loadButton').addEventListener('click', async () => {
     renderCalendar(bookingsMap);
 });
 
+// Simulação de usuários (em uma aplicação real, isso seria feito com autenticação no backend)
+const validUsername = 'admin';
+const validPassword = '12345';
+
+// Referências aos elementos da tela de login e conteúdo principal
+const loginScreen = document.getElementById('loginScreen');
+const mainContent = document.getElementById('mainContent');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+
+// Evento de envio do formulário de login
+loginForm.addEventListener('submit', function (event) {
+    event.preventDefault(); // Impede o envio do formulário
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Verifica se as credenciais são válidas
+    if (username === validUsername && password === validPassword) {
+        // Esconde a tela de login e mostra o conteúdo principal
+        loginScreen.style.display = 'none'; // Oculta a tela de login
+        mainContent.style.display = 'block'; // Exibe o conteúdo principal
+    } else {
+        // Exibe mensagem de erro
+        loginError.classList.remove('hidden');
+    }
+});
