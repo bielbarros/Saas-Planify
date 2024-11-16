@@ -145,9 +145,9 @@ document.getElementById('loadButton').addEventListener('click', async () => {
 
 // Simulação de múltiplos usuários (em uma aplicação real, isso seria feito com autenticação no backend)
 const users = [
-    { username: 'admin', password: '12345' },
-    { username: 'barao1', password: 'roberteviado' },
-    { username: 'user2', password: 'password2' }
+    { username: 'admin', password: 'admin' },
+    { username: 'barao1', password: '12345' },
+    { username: 'fpontes', password: '201964' }
 ];
 
 // Referências aos elementos da tela de login e conteúdo principal
