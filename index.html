@@ -11,25 +11,33 @@
 <body>
     <!-- Tela de Login -->
     <div id="loginScreen" class="login-screen">
-        <h2>Login</h2>
+        <h2>Plaza App</h2>
+
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="img/WhatsApp_Image_2024-11-16_at_15.39.00-removebg-preview.png" alt="Logo do Plaza App" id="logo">
+        </div>
+
         <form id="loginForm">
             <label for="username">Usuário:</label>
             <input type="text" id="username" name="username" required>
             <label for="password">Senha:</label>
             <input type="password" id="password" name="password" required>
             <button type="submit">Entrar</button>
+
+            <p id="loginError" class="hidden" style="color:red;">Usuário ou senha inválidos</p>
         </form>
-        <p id="loginError" class="hidden" style="color:red;">Usuário ou senha inválidos</p>
+        
     </div>
 
     <!-- Conteúdo da página principal (aparece após login) -->
     <div id="mainContent" class="container hidden">
-        <h1>Gerenciador de Reservas</h1>
+        
         <div class="file-upload">
             <input type="file" id="airbnbFile" accept=".csv" />
             <input type="file" id="bookingFile" accept=".xlsx" />
             <button id="loadButton">Gerar Calendário</button>
-            <button id="showDashboardButton">Mostrar Dashboard</button> <!-- Adicionado -->
+        
         </div>
         <div id="filters">
             <h2>Filtros de Exibição</h2>
@@ -48,15 +56,7 @@
         </div>
         <table id="bookingTable">
             <thead>
-                <tr>
-                    <th>Propriedade</th>
-                    <th>Data de Início</th>
-                    <th>Data de Fim</th>
-                    <th>Horário de Entrada</th>
-                    <th>Horário de Saída</th>
-                    <th>Nome do Cliente</th>
-                    <th>Forma de Pagamento</th>
-                </tr>
+                
             </thead>
             <tbody>
                 <!-- As reservas podem ser adicionadas aqui -->
