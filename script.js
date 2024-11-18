@@ -147,7 +147,8 @@ document.getElementById('loadButton').addEventListener('click', async () => {
 const users = [
     { username: 'admin', password: 'admin' },
     { username: 'barao1', password: '12345' },
-    { username: 'fpontes', password: '201964' }
+    { username: 'fpontes', password: '201964'},
+    { username: 'NicoleBarros', password: 'bielminhapaixao123$%'}
 ];
 
 // Referências aos elementos da tela de login e conteúdo principal
