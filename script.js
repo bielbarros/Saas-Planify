@@ -107,17 +107,21 @@ function renderCalendar(bookingsMap) {
             dayDiv.className = 'day';
             dayDiv.innerText = day;
 
-            if (bookingsMap[dateString]) {
-                const bookings = bookingsMap[dateString];
-                if (bookings.length > 1) {
-                    dayDiv.setAttribute('data-overbooking', 'true'); // Adiciona atributo para overbooking
-                }
-                bookings.forEach(booking => {
-                    const text = document.createElement('div');
-                    text.innerText = `${booking.property} (Check-in: ${booking.checkInTime}, Check-out: ${booking.checkOutTime}, Cliente: ${booking.clientName}, Pagamento: ${booking.paymentMethod}, Fonte: ${booking.source})`;
-                    dayDiv.appendChild(text);
-                });
+            const bookings = bookingsMap[dateString];
+            if (bookings) {
+                const isOverbooked = bookings.length > 1;
+                const source = isOverbooked ? 'Overbooking' : bookings[0].source;
+
+                dayDiv.setAttribute('data-source', source);
+                if (isOverbooked) dayDiv.setAttribute('data-overbooking', 'true');
+            } else {
+                dayDiv.setAttribute('data-source', 'none');
             }
+
+            // Evento de clique no dia
+            dayDiv.addEventListener('click', () => {
+                openModal(dateString, bookings || []);
+            });
 
             daysGrid.appendChild(dayDiv);
         }
@@ -126,6 +130,7 @@ function renderCalendar(bookingsMap) {
         calendarContainer.appendChild(monthDiv);
     });
 }
+
 
 // Evento para carregar os arquivos e gerar o calendário
 document.getElementById('loadButton').addEventListener('click', async () => {
@@ -148,7 +153,7 @@ const users = [
     { username: 'admin', password: 'admin' },
     { username: 'barao1', password: '12345' },
     { username: 'fpontes', password: '201964'},
-    { username: 'NicoleBarros', password: 'bielminhapaixao123$%'}
+    { username: 'NicoleBarros', password: 'biel123$%'}
 ];
 
 // Referências aos elementos da tela de login e conteúdo principal
@@ -189,3 +194,45 @@ togglePassword.addEventListener('click', function () {
     this.classList.toggle('fa-eye'); // Se estiver usando ícones, como FontAwesome
     this.classList.toggle('fa-eye-slash'); // Alterna entre "olho aberto" e "olho fechado"
 });
+function openModal(dateString, bookings) {
+    const modal = document.getElementById('modal');
+    const modalDetails = document.getElementById('modalDetails');
+    modalDetails.innerHTML = ''; // Limpa o conteúdo anterior
+
+    const title = document.createElement('h4');
+    title.innerText = `Reservas em ${dateString}`;
+    modalDetails.appendChild(title);
+
+    if (bookings.length === 0) {
+        modalDetails.innerHTML += '<p>Nenhuma reserva para esta data.</p>';
+    } else {
+        bookings.forEach(booking => {
+            const div = document.createElement('div');
+            div.innerText = `${booking.property} (Check-in: ${booking.checkInTime}, Check-out: ${booking.checkOutTime}, Cliente: ${booking.clientName}, Fonte: ${booking.source})`;
+            modalDetails.appendChild(div);
+        });
+    }
+
+    modal.style.display = 'block';
+
+    // Botão de fechar modal
+    const closeModal = document.getElementById('closeModal');
+    closeModal.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    // Botão para aplicar alterações (se necessário)
+    const applyChanges = document.getElementById('applyChanges');
+    applyChanges.onclick = () => {
+        alert(`Alterações para ${dateString} aplicadas!`);
+        modal.style.display = 'none';
+    };
+}
+
+// Fechar modal ao clicar fora
+window.onclick = function (event) {
+    const modal = document.getElementById('modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
