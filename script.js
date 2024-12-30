@@ -194,13 +194,24 @@ togglePassword.addEventListener('click', function () {
     this.classList.toggle('fa-eye'); // Se estiver usando ícones, como FontAwesome
     this.classList.toggle('fa-eye-slash'); // Alterna entre "olho aberto" e "olho fechado"
 });
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses começam do 0
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
 function openModal(dateString, bookings) {
     const modal = document.getElementById('modal');
     const modalDetails = document.getElementById('modalDetails');
     modalDetails.innerHTML = ''; // Limpa o conteúdo anterior
 
+    // Formatar a data para DD-MM-YYYY
+    const formattedDate = formatDate(dateString);
+
     const title = document.createElement('h4');
-    title.innerText = `Reservas em ${dateString}`;
+    title.innerText = `Reservas em ${formattedDate}`;
     modalDetails.appendChild(title);
 
     if (bookings.length === 0) {
@@ -215,6 +226,10 @@ function openModal(dateString, bookings) {
 
     modal.style.display = 'block';
 
+    // Armazenar a data formatada no botão para uso posterior
+    const whatsappButton = document.getElementById('whatsappButton');
+    whatsappButton.dataset.selectedDate = formattedDate; // Atualiza a data formatada
+
     // Botão de fechar modal
     const closeModal = document.getElementById('closeModal');
     closeModal.onclick = () => {
@@ -224,10 +239,13 @@ function openModal(dateString, bookings) {
     // Botão para aplicar alterações (se necessário)
     const applyChanges = document.getElementById('applyChanges');
     applyChanges.onclick = () => {
-        alert(`Alterações para ${dateString} aplicadas!`);
+        alert(`Alterações para ${formattedDate} aplicadas!`);
         modal.style.display = 'none';
     };
 }
+
+
+
 
 // Fechar modal ao clicar fora
 window.onclick = function (event) {
@@ -236,3 +254,27 @@ window.onclick = function (event) {
         modal.style.display = 'none';
     }
 };
+
+document.getElementById('whatsappButton').addEventListener('click', function() {
+    // Número da camareira (exemplo: com código de país 55 para o Brasil)
+    const camareiraNumber = "559999999999"; // Substitua pelo número real
+
+    // Obter a data clicada do botão (agora acessando o atributo correto)
+    const selectedDate = this.dataset.selectedDate;
+    
+    // Se não houver uma data selecionada, avisar ao usuário
+    if (!selectedDate) {
+        alert("Por favor, selecione uma data no calendário.");
+        return;
+    }
+
+    // Mensagem com as instruções, agora incluindo a data formatada
+    const mensagem = `Olá! Por favor, limpe o apartamento referente ao dia ${selectedDate}.`;
+    
+    // Criar o link do WhatsApp com a mensagem
+    const whatsappLink = `https://wa.me/${camareiraNumber}?text=${encodeURIComponent(mensagem)}`;
+    
+    // Redireciona o usuário para o link do WhatsApp
+    window.open(whatsappLink, '_blank');
+});
+
