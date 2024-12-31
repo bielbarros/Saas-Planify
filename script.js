@@ -4,17 +4,22 @@ async function readCSV(file) {
         const reader = new FileReader();
         reader.onload = (event) => {
             const text = event.target.result;
-            const lines = text.split('\n').slice(1);
+            const lines = text.split('\n').slice(1); // Ignorar o cabeçalho
             const data = lines.map(line => {
-                const [property, startDate, endDate, checkInTime, checkOutTime, clientName, paymentMethod] = line.split(',');
+                const [
+                    , , , // Ignorar as colunas desnecessárias
+                    arrival, departure, guestName, rooms, persons, originalAmount, , , hotelId, propertyName
+                ] = line.split(',');
+                
                 return {
-                    property,
-                    startDate: new Date(startDate),
-                    endDate: new Date(endDate),
-                    checkInTime,
-                    checkOutTime,
-                    clientName,
-                    paymentMethod
+                    arrival: new Date(arrival),
+                    departure: new Date(departure),
+                    guestName,
+                    rooms: parseInt(rooms),
+                    persons: parseInt(persons),
+                    originalAmount: parseFloat(originalAmount),
+                    hotelId,
+                    propertyName
                 };
             });
             resolve(data);
@@ -35,13 +40,14 @@ async function readExcel(file) {
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
             const result = jsonData.slice(1).map(row => ({
-                property: row[0],
-                startDate: new Date(row[1]),
-                endDate: new Date(row[2]),
-                checkInTime: row[3],
-                checkOutTime: row[4],
-                clientName: row[5],
-                paymentMethod: row[6]
+                arrival: new Date(row[3]),
+                departure: new Date(row[4]),
+                guestName: row[6],
+                rooms: row[7],
+                persons: row[8],
+                originalAmount: row[11],
+                hotelId: row[17],
+                propertyName: row[18]
             }));
 
             resolve(result);
@@ -60,14 +66,22 @@ function unifyBookings(airbnbData, bookingData) {
 
     const bookingsMap = {};
 
-    allBookings.forEach(({ property, startDate, endDate, checkInTime, checkOutTime, clientName, paymentMethod, source }) => {
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
+    allBookings.forEach(({ arrival, departure, propertyName, guestName, rooms, persons, originalAmount, hotelId, source }) => {
+        let currentDate = new Date(arrival);
+        while (currentDate <= departure) {
             const dateString = currentDate.toISOString().split('T')[0];
             if (!bookingsMap[dateString]) {
                 bookingsMap[dateString] = [];
             }
-            bookingsMap[dateString].push({ property, checkInTime, checkOutTime, clientName, paymentMethod, source });
+            bookingsMap[dateString].push({
+                propertyName,
+                guestName,
+                rooms,
+                persons,
+                originalAmount,
+                hotelId,
+                source
+            });
             currentDate.setDate(currentDate.getDate() + 1);
         }
     });
@@ -219,12 +233,12 @@ function openModal(dateString, bookings) {
     } else {
         bookings.forEach(booking => {
             const div = document.createElement('div');
-            div.innerText = `${booking.property} (Check-in: ${booking.checkInTime}, Check-out: ${booking.checkOutTime}, Cliente: ${booking.clientName}, Fonte: ${booking.source})`;
+            div.innerText = `${booking.propertyName} (Cliente: ${booking.guestName}, Quartos: ${booking.rooms}, Pessoas: ${booking.persons}, Valor: ${booking.originalAmount.toFixed(2)}, Fonte: ${booking.source})`;
             modalDetails.appendChild(div);
         });
     }
 
-    modal.style.display = 'block';
+    modal.style.display = 'block'; // Exibe o modal
 
     // Armazenar a data formatada no botão para uso posterior
     const whatsappButton = document.getElementById('whatsappButton');
@@ -233,7 +247,7 @@ function openModal(dateString, bookings) {
     // Botão de fechar modal
     const closeModal = document.getElementById('closeModal');
     closeModal.onclick = () => {
-        modal.style.display = 'none';
+        modal.style.display = 'none'; // Fecha o modal ao clicar no botão de fechar
     };
 
     // Botão para aplicar alterações (se necessário)
