@@ -305,9 +305,12 @@ function openModal(dateString, bookings) {
 
     modal.style.display = 'block'; // Exibe o modal
 
+    const propertyNames = bookings.map(booking => booking.propertyName).join("\n");
+
     // Armazenar a data formatada no botão para uso posterior
     const whatsappButton = document.getElementById('whatsappButton');
     whatsappButton.dataset.selectedDate = formattedDate; // Atualiza a data formatada
+    whatsappButton.dataset.propertyNames = propertyNames;
 
     // Botão de fechar modal
     const closeModal = document.getElementById('closeModal');
@@ -336,23 +339,32 @@ window.onclick = function (event) {
 
 document.getElementById('whatsappButton').addEventListener('click', function() {
     // Número da camareira (exemplo: com código de país 55 para o Brasil)
-    const camareiraNumber = "559999999999"; // Substitua pelo número real
+    const camareiraNumber = "5599999999999"; // Substitua pelo número real
 
     // Obter a data clicada do botão (agora acessando o atributo correto)
     const selectedDate = this.dataset.selectedDate;
-    
+
+    // Obter os nomes dos imóveis que foram armazenados no botão (da variável propertyNames)
+    const propertyNames = this.dataset.propertyNames;  // Aqui é onde pegamos os nomes dos imóveis
+
     // Se não houver uma data selecionada, avisar ao usuário
     if (!selectedDate) {
         alert("Por favor, selecione uma data no calendário.");
         return;
     }
 
-    // Mensagem com as instruções, agora incluindo a data formatada
-    const mensagem = `Olá! Por favor, limpe o apartamento referente ao dia ${selectedDate}.`;
-    
+    // Se não houver imóveis, avisar
+    if (!propertyNames) {
+        alert("Nenhum imóvel encontrado.");
+        return;
+    }
+
+    // Mensagem com a data e os imóveis que devem ser limpos
+    const mensagem = `Olá! Por favor, limpe os seguintes imóveis no dia ${selectedDate}:\n${propertyNames}`;
+
     // Criar o link do WhatsApp com a mensagem
     const whatsappLink = `https://wa.me/${camareiraNumber}?text=${encodeURIComponent(mensagem)}`;
-    
+
     // Redireciona o usuário para o link do WhatsApp
     window.open(whatsappLink, '_blank');
 });
