@@ -4,16 +4,37 @@ async function readCSV(file) {
         const reader = new FileReader();
         reader.onload = (event) => {
             const text = event.target.result;
+            console.log("Arquivo CSV carregado: ", text); // Log para verificar se o CSV foi lido corretamente
+
             const lines = text.split('\n').slice(1); // Ignorar o cabeçalho
+            console.log("Linhas após dividir pelo '\n': ", lines); // Log para ver as linhas separadas
+
             const data = lines.map(line => {
+                // Verifique se a linha está vazia
+                if (!line.trim()) {
+                    console.log("Linha vazia ignorada.");
+                    return null;
+                }
+
                 const [
-                    , , , // Ignorar as colunas desnecessárias
-                    arrival, departure, guestName, rooms, persons, originalAmount, , , hotelId, propertyName
+                    reservationNumber, invoiceNumber, bookedOn, arrival, departure, bookerName, guestName, rooms, persons, roomNights, commissionPercent, originalAmount, finalAmount, commissionAmount, status, guestRequest, currency, hotelId, propertyName, city, country
                 ] = line.split(',');
-                
+
+                console.log("Linha separada em campos: ", { reservationNumber, arrival, departure, guestName }); // Log para ver os dados extraídos
+
+                // Convertendo as datas
+                const arrivalDate = new Date(arrival);
+                const departureDate = new Date(departure);
+
+                // Verificar se as datas são válidas
+                if (isNaN(arrivalDate) || isNaN(departureDate)) {
+                    console.error('Data inválida encontrada:', arrival, departure);
+                    return null;  // Ignora a linha caso as datas sejam inválidas
+                }
+
                 return {
-                    arrival: new Date(arrival),
-                    departure: new Date(departure),
+                    arrival: arrivalDate,
+                    departure: departureDate,
                     guestName,
                     rooms: parseInt(rooms),
                     persons: parseInt(persons),
@@ -21,7 +42,10 @@ async function readCSV(file) {
                     hotelId,
                     propertyName
                 };
-            });
+            }).filter(row => row !== null); // Remover linhas inválidas
+
+            console.log("Dados processados: ", data); // Log para ver os dados finais
+
             resolve(data);
         };
         reader.onerror = reject;
@@ -29,33 +53,74 @@ async function readCSV(file) {
     });
 }
 
+
+
 // Função para ler arquivo Excel
 async function readExcel(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async (event) => {
             const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            console.log("Arquivo Excel carregado: ", data);
 
-            const result = jsonData.slice(1).map(row => ({
-                arrival: new Date(row[3]),
-                departure: new Date(row[4]),
-                guestName: row[6],
-                rooms: row[7],
-                persons: row[8],
-                originalAmount: row[11],
-                hotelId: row[17],
-                propertyName: row[18]
-            }));
+            try {
+                const workbook = XLSX.read(data, { type: 'array' });
+                console.log("WorkBook lido com sucesso: ", workbook);
 
-            resolve(result);
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                console.log("Dados extraídos do Excel: ", jsonData);
+
+                // Adicionando uma verificação para inspecionar as primeiras linhas
+                console.log("Primeiras linhas do Excel:", jsonData.slice(0, 5));
+
+                const result = jsonData.slice(1).map(row => {
+                    // Verifique os valores que estão sendo lidos
+                    console.log("Linha processada:", row);
+
+                    // Verifique se as colunas têm dados válidos antes de convertê-los
+                    const arrival = new Date(row[3]);
+                    const departure = new Date(row[4]);
+                    const guestName = row[6] || "";
+                    const rooms = row[7] || 0;
+                    const persons = row[8] || 0;
+                    const originalAmount = row[11] || 0;
+                    const hotelId = row[17] || "";
+                    const propertyName = row[18] || "";
+
+                    // Verifique se a data é válida
+                    if (isNaN(arrival) || isNaN(departure)) {
+                        console.error("Data inválida encontrada:", row[3], row[4]);
+                        return null;
+                    }
+
+                    return {
+                        arrival,
+                        departure,
+                        guestName,
+                        rooms,
+                        persons,
+                        originalAmount,
+                        hotelId,
+                        propertyName
+                    };
+                }).filter(row => row !== null);
+
+                console.log("Dados processados do Excel: ", result);
+                resolve(result);
+            } catch (error) {
+                console.error("Erro ao processar o arquivo Excel: ", error);
+                reject(error);
+            }
         };
-        reader.onerror = reject;
+        reader.onerror = (error) => {
+            console.error("Erro na leitura do arquivo: ", error);
+            reject(error);
+        };
         reader.readAsArrayBuffer(file);
     });
 }
+
 
 // Função para unificar as reservas
 function unifyBookings(airbnbData, bookingData) {
