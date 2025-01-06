@@ -142,7 +142,7 @@ html, body {
     justify-content: center;
     align-items: center;
     height: 100vh; /* Ocupa toda a altura da tela */
-    background-image: url('/img/1920x1080-px-apartments-city-cityscape-house-mountains-1344063-wallhere.com\ \(1\).jpg');
+    background-image: url('img/1920x1080-px-apartments-city-cityscape-house-mountains-1344063-wallhere.com\ \(1\).jpg');
     background-size: cover; /* Faz a imagem cobrir toda a tela, ajustando automaticamente o tamanho */
     background-position: center; /* Centraliza a imagem na tela */
     background-repeat: no-repeat; /* Impede que a imagem se repita */
