@@ -87,11 +87,11 @@ button:hover {
 }
 
 .day[data-overbooking]:before {
-    content: 'Overbooking!';
+    content: '';
     position: absolute;
     top: 5px;
     right: 5px;
-    color: red; 
+    color: rgb(255, 255, 255); 
 }
 #dashboard {
     margin-top: 20px;
@@ -261,12 +261,12 @@ html, body {
     background-color: lightgray; /* Neutro */
 }
 .day[data-source="Booking"] {
-    background-color: rgb(88, 88, 88); /* Booking */
+    background-color: rgb(4, 0, 255); /* Booking */
 }
 .day[data-source="Airbnb"] {
-    background-color: blue; /* Airbnb */
+    background-color: rgb(255, 0, 0); /* Airbnb */
 }
 .day[data-overbooking="true"] {
-    background-color: rgb(255, 0, 0); /* Overbooking */
-    color: white;
+    background-color: rgb(255, 251, 0); /* Overbooking */
+    color: rgb(0, 0, 0);
 }

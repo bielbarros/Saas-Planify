@@ -339,7 +339,7 @@ window.onclick = function (event) {
 
 document.getElementById('whatsappButton').addEventListener('click', function() {
     // Número da camareira (exemplo: com código de país 55 para o Brasil)
-    const camareiraNumber = "5599999999999"; // Substitua pelo número real
+    const camareiraNumber = "5531987324871"; // Substitua pelo número real
 
     // Obter a data clicada do botão (agora acessando o atributo correto)
     const selectedDate = this.dataset.selectedDate;
